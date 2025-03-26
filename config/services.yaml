@@ -12,6 +12,15 @@ services:
         alias: monolog.logger.keycloak
         public: true
 
+    Iperson1337\PimcoreKeycloakBundle\Installer:
+        public: true
+        arguments:
+            $bundle: "@=service('kernel').getBundle('PimcoreKeycloakBundle')"
+
+    Iperson1337\PimcoreKeycloakBundle\EventListener\LogoutListener:
+        tags:
+            - { name: kernel.event_subscriber }
+
     Iperson1337\PimcoreKeycloakBundle\Security\User\KeycloakUserProvider:
         arguments:
             $logger: '@monolog.logger.keycloak'
