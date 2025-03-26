@@ -9,3 +9,7 @@ iperson1337_pimcore_keycloak_auth_check:
 iperson1337_pimcore_keycloak_auth_logout:
     path: /admin/keycloak/logout
     controller: Iperson1337\PimcoreKeycloakBundle\Controller\KeycloakController::logoutAction
+
+iperson1337_pimcore_keycloak_auth_account:
+    path: /admin/keycloak/account
+    controller: Iperson1337\PimcoreKeycloakBundle\Controller\KeycloakController::accountAction
