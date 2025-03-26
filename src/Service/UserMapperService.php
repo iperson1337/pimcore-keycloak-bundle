@@ -11,8 +11,8 @@ use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
 readonly class UserMapperService
 {
     public function __construct(
-        private LoggerInterface $logger,
-        private string $defaultLanguage,
+        protected LoggerInterface $logger,
+        protected string            $defaultLanguage,
     ) {
     }
 
@@ -67,7 +67,7 @@ readonly class UserMapperService
             $user->setPassword(password_hash($randomPassword, PASSWORD_DEFAULT));
 
             // Назначаем базовые роли
-            $this->assignDefaultRolesToUser($user);
+            $this->assignDefaultRolesToUser($user, $resourceOwner);
 
             $user->save();
 
@@ -156,7 +156,7 @@ readonly class UserMapperService
     /**
      * Синхронизирует роли пользователя на основе ролей Keycloak
      */
-    private function syncUserRoles(User $user, array $keycloakRoles): void
+    protected function syncUserRoles(User $user, array $keycloakRoles): void
     {
         // Здесь можно реализовать логику синхронизации ролей между Keycloak и Pimcore
         // Например, если у пользователя в Keycloak есть роль 'admin', сделать его админом в Pimcore
@@ -174,7 +174,7 @@ readonly class UserMapperService
     /**
      * Назначает базовые роли пользователю при создании
      */
-    private function assignDefaultRolesToUser(User $user): void
+    protected function assignDefaultRolesToUser(User $user, KeycloakResourceOwner $resourceOwner): void
     {
         // Здесь можно назначить базовые роли, которые должны быть у всех пользователей
         // Например:
