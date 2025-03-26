@@ -3,25 +3,31 @@ pimcore.registerNS("pimcore.plugin.PimcoreKeycloakBundle");
 pimcore.plugin.PimcoreKeycloakBundle = Class.create({
 
     initialize: function () {
-        document.addEventListener(pimcore.events.pimcoreReady, this.pimcoreReady.bind(this));
+        console.log("Pimcore Keycloak Bundle initialized");
+        document.addEventListener(pimcore.events.preMenuBuild, this.preMenuBuild.bind(this));
     },
 
-    pimcoreReady: function (e) {
-        // Add Keycloak login option to user menu
-        this.addKeycloakMenuItem();
+    preMenuBuild: function (e) {
+        // Получаем существующее меню из события
+        let menu = e.detail.menu;
+
+        // Добавляем новый пункт меню для Keycloak
+        menu.keycloakAccount = {
+            label: t('keycloak_account'),
+            iconCls: 'pimcore_keycloak_icon',
+            priority: 42, // приоритет для определения позиции в меню
+            items: [], // элементы подменю (в данном случае их нет)
+            shadow: false,
+            handler: this.openKeycloakAccount,
+            noSubmenus: true,
+            cls: "pimcore_navigation_flyout"
+        };
     },
 
-    addKeycloakMenuItem: function() {
-        var menu = pimcore.globalmanager.get("layout_toolbar").userMenu;
-
-        menu.add('-');
-        menu.add({
-            text: t('keycloak_account'),
-            iconCls: 'pimcore_icon_user',
-            handler: function() {
-                window.open('/admin/keycloak/account', '_blank');
-            }
-        });
+    // Обработчик для открытия аккаунта Keycloak
+    openKeycloakAccount: function() {
+        // Открываем управление аккаунтом Keycloak в новой вкладке
+        window.open('/admin/keycloak/account', '_blank');
     }
 });
 

@@ -16,5 +16,5 @@
 
 .pimcore_keycloak_icon {
     background: url(../img/keycloak.svg) center center no-repeat !important;
-    background-size: 16px !important;
+    filter: grayscale(100%);
 }
