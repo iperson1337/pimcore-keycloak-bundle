@@ -25,10 +25,11 @@ use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class KeycloakAuthenticator extends OAuth2Authenticator implements AuthenticatorInterface
+class KeycloakAuthenticator extends OAuth2Authenticator implements AuthenticatorInterface, AuthenticationEntryPointInterface
 {
     public const PIMCORE_ADMIN_LOGIN_CHECK = 'pimcore_admin_login_check';
 
@@ -177,6 +178,25 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticator
 
         // Перенаправляем на страницу входа с сообщением об ошибке
         return new RedirectResponse($this->router->generate('pimcore_admin_login', $loginParams));
+    }
+
+    public function start(Request $request, AuthenticationException $authException = null): Response
+    {
+        $this->logger->info('KeycloakEntryPoint: Перенаправление неаутентифицированного пользователя на Keycloak');
+
+        if ($request->hasSession()) {
+            $request->getSession()->set('loginReferrer', $request->getUri());
+        }
+
+        try {
+            return new RedirectResponse($this->router->generate('iperson1337_pimcore_keycloak_auth_connect'));
+        } catch (\Exception $e) {
+            $this->logger->error('KeycloakEntryPoint: Ошибка при перенаправлении на Keycloak: ' . $e->getMessage());
+
+            return new RedirectResponse($this->router->generate('pimcore_admin_login', [
+                'login_error' => 'Ошибка при подключении к SSO. Пожалуйста, попробуйте использовать стандартный вход.'
+            ]));
+        }
     }
 
     /**
