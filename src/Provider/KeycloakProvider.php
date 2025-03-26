@@ -2,6 +2,7 @@
 
 namespace Iperson1337\PimcoreKeycloakBundle\Provider;
 
+use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
@@ -42,6 +43,9 @@ class KeycloakProvider extends AbstractProvider
         parent::__construct($options, $collaborators);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function decryptResponse($response): array
     {
         if (!is_string($response)) {
@@ -56,19 +60,19 @@ class KeycloakProvider extends AbstractProvider
      *
      * @param string $mode ("MODE_PUBLIC" / "MODE_PRIVATE")
      *
-     * @return string
+     * @return string|null
      */
-    public function getBaseUrl($mode = self::MODE_PUBLIC)
+    public function getBaseUrl(string $mode = self::MODE_PUBLIC): ?string
     {
         return self::MODE_PRIVATE === $mode ? $this->authServerPrivateUrl : $this->authServerPublicUrl;
     }
 
-    public function getBaseUrlWithRealm($mode)
+    public function getBaseUrlWithRealm($mode): string
     {
         return sprintf('%s/realms/%s', $this->getBaseUrl($mode), $this->realm);
     }
 
-    public function getResourceOwnerManageAccountUrl()
+    public function getResourceOwnerManageAccountUrl(): string
     {
         return sprintf('%s/account', $this->getBaseUrlWithRealm(self::MODE_PUBLIC));
     }
@@ -103,7 +107,7 @@ class KeycloakProvider extends AbstractProvider
         return sprintf('%s/admin/realms/%s', $this->getBaseUrl(self::MODE_PRIVATE), $this->realm);
     }
 
-    public function getLogoutUrl(array $options = [])
+    public function getLogoutUrl(array $options = []): string
     {
         $base = $this->getBaseLogoutUrl();
         $params = $this->getAuthorizationParameters($options);
@@ -120,6 +124,10 @@ class KeycloakProvider extends AbstractProvider
         return $this->appendQuery($base, $query);
     }
 
+    /**
+     * @throws GuzzleException
+     * @throws IdentityProviderException
+     */
     public function getResourceOwner(AccessToken $token): KeycloakResourceOwner
     {
         $response = $this->fetchResourceOwnerDetails($token);
