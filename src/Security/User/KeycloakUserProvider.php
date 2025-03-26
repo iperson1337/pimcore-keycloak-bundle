@@ -93,10 +93,10 @@ readonly class KeycloakUserProvider implements UserProviderInterface
         $keycloakUser->setEmail($resourceOwner->getEmail());
         $keycloakUser->setFirstName($resourceOwner->getFirstName());
         $keycloakUser->setLastName($resourceOwner->getLastName());
-        $keycloakUser->setKeycloakRoles($resourceOwner->getRoles());
+        $keycloakUser->setKeycloakRoles($resourceOwner->getResourceRoles());
 
         // Устанавливаем роли для пользователя
-        $roles = $this->userMapperService->mapPimcoreRolesToKeycloakRoles($pimcoreUser, $resourceOwner->getRoles());
+        $roles = $this->userMapperService->mapPimcoreRolesToKeycloakRoles($pimcoreUser, $resourceOwner->getResourceRoles());
         $keycloakUser->setRoles($roles);
 
         return $keycloakUser;

@@ -57,6 +57,40 @@ class KeycloakResourceOwner implements ResourceOwnerInterface
         return $this->response['resource_access'] ?? [];
     }
 
+    public function getResourceRoles(): array
+    {
+        $roles = [];
+
+        // Проверяем наличие resource_access
+        if (isset($this->response['resource_access']) && is_array($this->response['resource_access'])) {
+            // Перебираем все ресурсы
+            foreach ($this->response['resource_access'] as $resource => $data) {
+                // Если в ресурсе есть роли
+                if (isset($data['roles']) && is_array($data['roles'])) {
+                    // Добавляем все роли в общий массив
+                    foreach ($data['roles'] as $role) {
+                        $roles[] = $role;
+                    }
+                }
+            }
+        }
+
+        return $roles;
+    }
+
+    /**
+     * Получает роли для конкретного ресурса
+     */
+    public function getResourceRolesForClient(string $clientId): array
+    {
+        if (isset($this->response['resource_access'][$clientId]['roles'])
+            && is_array($this->response['resource_access'][$clientId]['roles'])) {
+            return $this->response['resource_access'][$clientId]['roles'];
+        }
+
+        return [];
+    }
+
     /**
      * @deprecated For old keycloak version support
      */

@@ -103,7 +103,7 @@ readonly class UserMapperService
             // но при необходимости можно добавить и эту логику
 
             // Синхронизируем роли, если необходимо
-            $keycloakRoles = $resourceOwner->getRoles();
+            $keycloakRoles = $resourceOwner->getResourceRoles();
             if (!empty($keycloakRoles)) {
                 $this->syncUserRoles($user, $keycloakRoles);
                 $hasChanges = true;
