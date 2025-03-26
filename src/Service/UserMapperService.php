@@ -11,8 +11,8 @@ use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
 readonly class UserMapperService
 {
     public function __construct(
-        protected LoggerInterface $logger,
-        protected string            $defaultLanguage,
+        private LoggerInterface $logger,
+        private string          $defaultLanguage,
     ) {
     }
 

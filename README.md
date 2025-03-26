@@ -182,21 +182,24 @@ bin/console cache:clear
 Для настройки более сложной логики маппинга ролей вы можете расширить сервис `UserMapperService`:
 
 ```php
-// src/Service/CustomUserMapperService.php
+<?php
+
 namespace App\Service;
 
-use Pimcore\Model\User;
-use Psr\Log\LoggerInterface;
 use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
 use Iperson1337\PimcoreKeycloakBundle\Service\UserMapperService;
+use Pimcore\Model\User;
+use Psr\Log\LoggerInterface;
 
-class CustomUserMapperService extends UserMapperService
+readonly class KeycloakUserMapperService extends UserMapperService
 {
-    public function __construct(LoggerInterface $logger)
-    {
-        parent::__construct($logger);
+    public function __construct(
+        protected LoggerInterface $logger,
+        protected string          $defaultLanguage,
+    ) {
+        parent::__construct($logger, $defaultLanguage);
     }
-
+    
     protected function syncUserRoles(User $user, array $keycloakRoles): void
     {
         parent::syncUserRoles($user, $keycloakRoles);
@@ -207,18 +210,29 @@ class CustomUserMapperService extends UserMapperService
             $user->setRoles(['contentEditor', 'reviewer']);
         }
     }
+
+    protected function assignDefaultRolesToUser(User $user, KeycloakResourceOwner $resourceOwner): void
+    {
+        foreach ($resourceOwner->getResourceRoles() as $keycloakRole) {
+            if (strtolower($keycloakRole) === 'admin' && !$user->isAdmin()) {
+                $user->setAdmin(true);
+                $this->logger->info('Пользователь установлен как админ на основе роли Keycloak');
+            }
+
+            // Здесь можно добавить дополнительную логику для других ролей
+        }
+    }
 }
 ```
 
 Затем зарегистрируйте ваш сервис в `services.yaml`:
 
 ```yaml
-services:
-    Iperson1337\PimcoreKeycloakBundle\Service\UserMapperService:
-        class: App\Service\CustomUserMapperService
-        arguments:
-            $logger: '@monolog.logger.keycloak'
-            $defaultLanguage: '%iperson1337_pimcore_keycloak.default_language%'
+Iperson1337\PimcoreKeycloakBundle\Service\UserMapperService:
+    class: App\Service\KeycloakUserMapperService
+    arguments:
+        $logger: '@monolog.logger.keycloak'
+        $defaultLanguage: '%iperson1337_pimcore_keycloak.default_language%'
 ```
 
 ## Поддержка Single Logout
