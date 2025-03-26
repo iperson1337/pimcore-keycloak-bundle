@@ -2,44 +2,29 @@
 
 namespace Iperson1337\PimcoreKeycloakBundle\EventListener;
 
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use Iperson1337\PimcoreKeycloakBundle\Security\User\KeycloakUser;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
-readonly class LogoutListener
+readonly class LogoutListener implements EventSubscriberInterface
 {
     public function __construct(
-        private ClientRegistry        $clientRegistry,
-        private UrlGeneratorInterface $urlGenerator,
-        private TokenStorageInterface $tokenStorage,
-        private string                $defaultTargetRouteName
+        private UrlGeneratorInterface $router,
+        private string $keycloakLogoutRoute = 'iperson1337_pimcore_keycloak_auth_logout'
     ) {
     }
 
-    public function onSymfonyComponentSecurityHttpEventLogoutEvent(LogoutEvent $event): void
+    public static function getSubscribedEvents(): array
     {
-        if (null === $event->getToken() || null === $event->getToken()->getUser()) {
-            return;
-        }
+        return [
+            LogoutEvent::class => 'onLogout',
+        ];
+    }
 
-        $user = $event->getToken()->getUser();
-        if (!$user instanceof KeycloakUser) {
-            return;
-        }
-
-        $oAuth2Provider = $this->clientRegistry->getClient('keycloak')->getOAuth2Provider();
-        $logoutUrl = $oAuth2Provider->getLogoutUrl([
-            'state' => $user->getAccessToken()->getValues()['session_state'],
-            'access_token' => $user->getAccessToken(),
-            'redirect_uri' => str_replace('http://', 'https://', $this->urlGenerator->generate($this->defaultTargetRouteName, [], UrlGeneratorInterface::ABSOLUTE_URL))
-        ]);
-
-        $this->tokenStorage->setToken(null);
-        $event->getRequest()->getSession()->invalidate();
-
-        $event->setResponse(new RedirectResponse($logoutUrl));
+    public function onLogout(LogoutEvent $event): void
+    {
+        $response = new RedirectResponse($this->router->generate($this->keycloakLogoutRoute));
+        $event->setResponse($response);
     }
 }
