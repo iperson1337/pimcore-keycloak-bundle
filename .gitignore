@@ -4,8 +4,12 @@
 *.iml
 out
 gen
+.vscode
+*.sublime-project
+*.sublime-workspace
 
 /vendor/
+/composer.lock
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
@@ -17,3 +21,15 @@ gen
 /.phpunit.cache/
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

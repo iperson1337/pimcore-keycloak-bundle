@@ -1,6 +1,12 @@
-# Keycloak SSO для Pimcore
+# Keycloak SSO для Pimcore 11
 
-Этот бандл предоставляет интеграцию между административным интерфейсом Pimcore и Keycloak SSO.
+[![Latest Stable Version](https://img.shields.io/packagist/v/iperson1337/pimcore-keycloak-bundle.svg)](https://packagist.org/packages/iperson1337/pimcore-keycloak-bundle)
+[![Total Downloads](https://img.shields.io/packagist/dt/iperson1337/pimcore-keycloak-bundle.svg)](https://packagist.org/packages/iperson1337/pimcore-keycloak-bundle)
+[![License](https://img.shields.io/packagist/l/iperson1337/pimcore-keycloak-bundle.svg)](https://github.com/iperson1337/pimcore-keycloak-bundle/blob/main/LICENSE)
+
+Бандл для интеграции административного интерфейса Pimcore 11 с системой единого входа Keycloak SSO.
+
+![Keycloak + Pimcore](docs/images/keycloak-pimcore.png)
 
 ## Возможности
 
@@ -9,17 +15,18 @@
 - Синхронизация данных пользователя при каждом логине
 - Поддержка Single Logout (выход одновременно из Pimcore и Keycloak)
 - Соответствие ролей Keycloak и Pimcore
+- Управление аккаунтом Keycloak из интерфейса Pimcore
 
 ## Требования
 
 - Pimcore 11
 - Symfony 6.4
 - PHP 8.1 или выше
-- Работающий сервер Keycloak
+- Настроенный сервер Keycloak
 
 ## Установка
 
-1. **Установите бандл через Composer**
+### 1. Установка пакета через Composer
 
 ```bash
 composer require iperson1337/pimcore-keycloak-bundle
@@ -35,35 +42,10 @@ return [
 ];
 ```
 
-3. **Создайте файл конфигурации `config/packages/iperson1337_pimcore_keycloak.yaml`**
+3. Запуск инсталлятора
 
-```yaml
-iperson1337_pimcore_keycloak:
-    default_target_route_name: 'pimcore_admin_index'
-    admin_user_class: 'Pimcore\Model\User'
-
-    # Автоматически создавать пользователей в Pimcore при первом входе через Keycloak
-    auto_create_users: true
-
-    # Синхронизировать данные пользователя при каждом входе
-    sync_user_data: true
-
-    # Настройки подключения к Keycloak
-    keycloak:
-        client_id: '%env(KEYCLOAK_CLIENT_ID)%'
-        client_secret: '%env(KEYCLOAK_CLIENT_SECRET)%'
-        server_url: '%env(KEYCLOAK_SERVER_BASE_URL)%'
-        server_public_url: '%env(KEYCLOAK_SERVER_PUBLIC_BASE_URL)%'
-        server_private_url: '%env(KEYCLOAK_SERVER_PRIVATE_BASE_URL)%'
-        realm: '%env(KEYCLOAK_REALM)%'
-        ssl_verification: true # Рекомендуется всегда использовать true в production
-
-    # Маппинг полей пользователя Keycloak на поля пользователя Pimcore
-    user_mapping:
-        username: 'preferred_username'
-        email: 'email'
-        firstname: 'given_name'
-        lastname: 'family_name'
+```bash
+bin/console pimcore:bundle:install PimcoreKeycloakBundle
 ```
 
 4. **Добавьте переменные окружения в `.env` файл**
@@ -148,18 +130,11 @@ security:
 6. **Добавьте маршруты в конфигурацию**
 
 ```yaml
-# config/routes.yaml
-iperson1337_pimcore_keycloak_auth_connect:
-    path: /auth/keycloak/connect
-    controller: Iperson1337\PimcoreKeycloakBundle\Controller\KeycloakController::connectAction
+# config/routes/iperson1337_pimcore_keycloak.yaml
+iperson1337_pimcore_keycloak:
+    resource: "@PimcoreKeycloakBundle/config/routing.yaml"
+    prefix: /
 
-iperson1337_pimcore_keycloak_auth_check:
-    path: /auth/keycloak/check
-    controller: Iperson1337\PimcoreKeycloakBundle\Controller\KeycloakController::checkAction
-
-iperson1337_pimcore_keycloak_auth_logout:
-    path: /auth/keycloak/logout
-    controller: Iperson1337\PimcoreKeycloakBundle\Controller\KeycloakController::logoutAction
 ```
 
 7. **Обновите cookie_samesite для поддержки OAuth2**
@@ -243,6 +218,7 @@ services:
         class: App\Service\CustomUserMapperService
         arguments:
             $logger: '@monolog.logger.keycloak'
+            $defaultLanguage: '%iperson1337_pimcore_keycloak.default_language%'
 ```
 
 ## Поддержка Single Logout
@@ -284,3 +260,6 @@ monolog:
 4. Логи в файле keycloak.log
 
 Дополнительные руководства по устранению неполадок доступны в документации в папке `docs/`.
+
+## Лицензия
+MIT
