@@ -11,7 +11,8 @@ use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
 readonly class UserMapperService
 {
     public function __construct(
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private string $defaultLanguage,
     ) {
     }
 
@@ -58,6 +59,7 @@ readonly class UserMapperService
             $user->setFirstname($resourceOwner->getFirstName() ?? '');
             $user->setLastname($resourceOwner->getLastName() ?? '');
             $user->setActive(true);
+            $user->setLanguage($this->defaultLanguage);
 
             // Генерируем случайный пароль, который не будет использоваться
             // для аутентификации, но требуется для создания пользователя

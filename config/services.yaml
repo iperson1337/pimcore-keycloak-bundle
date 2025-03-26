@@ -6,6 +6,7 @@ services:
         bind:
             $autoCreateUsers: '%iperson1337_pimcore_keycloak.auto_create_users%'
             $syncUserData: '%iperson1337_pimcore_keycloak.sync_user_data%'
+            $defaultLanguage: '%iperson1337_pimcore_keycloak.default_language%'
 
     Psr\Log\LoggerInterface:
         alias: monolog.logger.keycloak

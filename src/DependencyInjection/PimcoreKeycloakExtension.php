@@ -27,6 +27,7 @@ class PimcoreKeycloakExtension extends Extension implements PrependExtensionInte
         $container->setParameter('iperson1337_pimcore_keycloak.auto_create_users', $config['auto_create_users']);
         $container->setParameter('iperson1337_pimcore_keycloak.sync_user_data', $config['sync_user_data']);
         $container->setParameter('iperson1337_pimcore_keycloak.user_mapping', $config['user_mapping']);
+        $container->setParameter('iperson1337_pimcore_keycloak.default_language', $config['default_language']);
     }
 
     public function prepend(ContainerBuilder $container): void
