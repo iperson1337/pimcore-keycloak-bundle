@@ -173,11 +173,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticator
             'code' => $exception->getCode()
         ]);
 
-        // Добавляем сообщение об ошибке в параметры URL
-        $loginParams = ['login_error' => $exception->getMessage()];
-
-        // Перенаправляем на страницу входа с сообщением об ошибке
-        return new RedirectResponse($this->router->generate('pimcore_admin_login', $loginParams));
+        return new Response($exception->getMessage(), Response::HTTP_BAD_REQUEST);
     }
 
     public function start(Request $request, AuthenticationException $authException = null): Response
@@ -193,9 +189,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticator
         } catch (\Exception $e) {
             $this->logger->error('KeycloakEntryPoint: Ошибка при перенаправлении на Keycloak: ' . $e->getMessage());
 
-            return new RedirectResponse($this->router->generate('pimcore_admin_login', [
-                'login_error' => 'Ошибка при подключении к SSO. Пожалуйста, попробуйте использовать стандартный вход.'
-            ]));
+            return new Response('Ошибка при подключении к SSO. Пожалуйста, попробуйте использовать стандартный вход.', Response::HTTP_BAD_REQUEST);
         }
     }
 

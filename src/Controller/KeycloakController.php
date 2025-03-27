@@ -18,15 +18,13 @@ class KeycloakController extends AbstractController
     ) {
     }
 
-    public function connectAction(): RedirectResponse
+    public function connectAction(): Response
     {
         try {
             return $this->clientRegistry->getClient('keycloak')->redirect();
         } catch (\Exception $e) {
             $this->logger->error('Error initiating Keycloak authentication: ' . $e->getMessage());
-            return $this->redirectToRoute('pimcore_admin_login', [
-                'login_error' => 'Ошибка подключения к Keycloak. Пожалуйста, попробуйте позже.'
-            ]);
+            return new Response('Ошибка подключения к Keycloak. Пожалуйста, попробуйте позже.', Response::HTTP_BAD_REQUEST);
         }
     }
 
