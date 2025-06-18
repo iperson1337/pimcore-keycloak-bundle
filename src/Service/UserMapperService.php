@@ -2,11 +2,11 @@
 
 namespace Iperson1337\PimcoreKeycloakBundle\Service;
 
+use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
 use Pimcore\Model\User;
 use Pimcore\Model\User\Listing as UserListing;
 use Pimcore\Model\User\Role;
 use Psr\Log\LoggerInterface;
-use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
 
 readonly class UserMapperService
 {

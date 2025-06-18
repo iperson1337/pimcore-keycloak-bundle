@@ -2,6 +2,8 @@
 
 namespace Iperson1337\PimcoreKeycloakBundle\Security\Authenticator;
 
+use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
+use Iperson1337\PimcoreKeycloakBundle\Security\User\KeycloakUserProvider;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Pimcore\Cache\RuntimeCache;
@@ -9,8 +11,6 @@ use Pimcore\Security\User\User;
 use Pimcore\Tool\Authentication;
 use Pimcore\Tool\Session;
 use Psr\Log\LoggerInterface;
-use Iperson1337\PimcoreKeycloakBundle\Provider\KeycloakResourceOwner;
-use Iperson1337\PimcoreKeycloakBundle\Security\User\KeycloakUserProvider;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +21,6 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -29,9 +28,9 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class KeycloakAuthenticator extends OAuth2Authenticator implements AuthenticatorInterface, AuthenticationEntryPointInterface
+class KeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
-    public const PIMCORE_ADMIN_LOGIN_CHECK = 'pimcore_admin_login_check';
+    public const string PIMCORE_ADMIN_LOGIN_CHECK = 'pimcore_admin_login_check';
 
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
@@ -141,7 +140,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticator
             $this->saveUserToSession($securityUser, $request->getSession());
         }
 
-        if ($request->attributes->get('_route') != 'iperson1337_pimcore_keycloak_auth_check') {
+        if ($request->attributes->get('_route') !== 'iperson1337_pimcore_keycloak_auth_check') {
             return null;
         }
 
@@ -178,7 +177,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticator
 
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        $this->logger->info('KeycloakEntryPoint: Перенаправление неаутентифицированного пользователя на Keycloak');
+        $this->logger->info('KeycloakEntryPoint: Перенаправление не аутентифицированного пользователя на Keycloak');
 
         if ($request->hasSession()) {
             $request->getSession()->set('loginReferrer', $request->getUri());
@@ -201,7 +200,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticator
         if (Authentication::isValidUser($user->getUser())) {
             $pimcoreUser = $user->getUser();
 
-            Session::useBag($session, function (AttributeBagInterface $adminSession, SessionInterface $session) use ($pimcoreUser) {
+            Session::useBag($session, static function (AttributeBagInterface $adminSession, SessionInterface $session) use ($pimcoreUser) {
                 $session->migrate();
                 $adminSession->set('user', $pimcoreUser);
             });

@@ -13,20 +13,11 @@ class KeycloakProvider extends AbstractProvider
 {
     use BearerAuthorizationTrait;
 
-    /**
-     * @var string
-     */
-    const ACCESS_TOKEN_RESOURCE_OWNER_ID = 'keycloak';
+    const string ACCESS_TOKEN_RESOURCE_OWNER_ID = 'keycloak';
 
-    /**
-     * @var string use to identify the "public"" way to call the auth server
-     */
-    const MODE_PUBLIC = 'public';
+    const string MODE_PUBLIC = 'public';
 
-    /**
-     * @var string use to identify the "private"" way to call the auth server
-     */
-    const MODE_PRIVATE = 'private';
+    const string MODE_PRIVATE = 'private';
 
     public ?string $authServerPublicUrl = null;
 
@@ -56,7 +47,7 @@ class KeycloakProvider extends AbstractProvider
     }
 
     /**
-     * Creates base url from provider configuration.
+     * Creates base url from a provider configuration.
      *
      * @param string $mode ("MODE_PUBLIC" / "MODE_PRIVATE")
      *
@@ -127,6 +118,7 @@ class KeycloakProvider extends AbstractProvider
     /**
      * @throws GuzzleException
      * @throws IdentityProviderException
+     * @throws \Exception
      */
     public function getResourceOwner(AccessToken $token): KeycloakResourceOwner
     {
