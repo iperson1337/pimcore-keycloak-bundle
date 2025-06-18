@@ -78,6 +78,11 @@ class KeycloakResourceOwner implements ResourceOwnerInterface
         return $roles;
     }
 
+    public function getRealmAccessRoles(): array
+    {
+        return $this->response['realm_access']['roles'] ?? [];
+    }
+
     /**
      * Получает роли для конкретного ресурса
      */
