@@ -67,6 +67,7 @@ class PimcoreKeycloakExtension extends Extension implements PrependExtensionInte
                         'auth_server_url' => $config['keycloak']['server_url'] ?? null,
                         'realm' => $config['keycloak']['realm'],
                         'verify' => $config['keycloak']['ssl_verification'],
+                        'default_scopes' => $config['keycloak']['default_scopes'],
                     ],
                 ],
             ],

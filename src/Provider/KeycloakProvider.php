@@ -25,11 +25,14 @@ class KeycloakProvider extends AbstractProvider
 
     public ?string $realm = null;
 
+    public array $defaultScopes;
+
     public function __construct(array $options = [], array $collaborators = [])
     {
         $this->authServerPublicUrl = $options['auth_server_public_url'] ?? $options['auth_server_url'];
         $this->authServerPrivateUrl = $options['auth_server_private_url'] ?? $options['auth_server_url'];
         $this->realm = $options['realm'];
+        $this->defaultScopes = $options['default_scopes'];
 
         parent::__construct($options, $collaborators);
     }
@@ -140,7 +143,7 @@ class KeycloakProvider extends AbstractProvider
 
     protected function getDefaultScopes(): array
     {
-        return ['openid', 'profile', 'email', 'roles'];
+        return $this->defaultScopes;
     }
 
     protected function getScopeSeparator(): string
