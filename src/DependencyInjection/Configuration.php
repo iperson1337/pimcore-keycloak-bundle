@@ -76,6 +76,16 @@ class Configuration implements ConfigurationInterface
                             ->defaultTrue()
                             ->info('Проверять SSL сертификат сервера Keycloak')
                         ->end()
+                        ->arrayNode('default_scopes')
+                            ->info('Scopes from Keycloak')
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v) {
+                                    return array_map('trim', explode(',', $v));
+                                })
+                            ->end()
+                            ->prototype('scalar')->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end()

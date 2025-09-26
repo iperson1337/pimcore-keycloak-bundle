@@ -18,6 +18,7 @@ iperson1337_pimcore_keycloak:
         server_private_url: '%env(KEYCLOAK_SERVER_PRIVATE_BASE_URL)%'
         realm: '%env(KEYCLOAK_REALM)%'
         ssl_verification: false
+        default_scopes: '%env(KEYCLOAK_DEFAULT_SCOPES)%'
 
     # Маппинг полей пользователя Keycloak на поля пользователя Pimcore
     user_mapping:
