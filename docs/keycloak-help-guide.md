@@ -2,6 +2,12 @@
 
 Here are resources to help you get started with Keycloak.
 
+## Configuration Guide
+[Complete configuration guide for Pimcore Keycloak Bundle](./configuration-guide.md)
+
+## Examples
+[Practical examples and use cases](./examples.md)
+
 ## Keycloak with docker
 [Here is a full configuration to easily start Keycloak with docker (in swarm mode)](./example/docker-compose.yml)
 Take a look at the [documentation](./example/README.md).

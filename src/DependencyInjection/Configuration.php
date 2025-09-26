@@ -77,10 +77,14 @@ class Configuration implements ConfigurationInterface
                             ->info('Проверять SSL сертификат сервера Keycloak')
                         ->end()
                         ->arrayNode('default_scopes')
-                            ->isRequired()
-                            ->cannotBeEmpty()
-                            ->scalarPrototype()->end() // This specifies that each element in the array is a scalar (string)
-                            ->info('Scopes from Keycloak') // Optional: add a description
+                            ->info('Scopes from Keycloak')
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v) {
+                                    return array_map('trim', explode(',', $v));
+                                })
+                            ->end()
+                            ->prototype('scalar')->end()
                         ->end()
                     ->end()
                 ->end()

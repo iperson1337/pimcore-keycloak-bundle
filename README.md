@@ -58,6 +58,7 @@ KEYCLOAK_SERVER_BASE_URL=https://keycloak.example.com/auth
 KEYCLOAK_SERVER_PUBLIC_BASE_URL=https://keycloak.example.com/auth
 KEYCLOAK_SERVER_PRIVATE_BASE_URL=https://keycloak.example.com/auth
 KEYCLOAK_REALM=your-realm
+KEYCLOAK_DEFAULT_SCOPES=openid,profile,email,roles
 ###< iperson1337/pimcore-keycloak-bundle ###
 ```
 
@@ -152,6 +153,88 @@ framework:
 bin/console cache:clear
 ```
 
+## Конфигурация
+
+### Переменные окружения
+
+| Переменная | Описание | Обязательная | Пример |
+|------------|----------|--------------|---------|
+| `KEYCLOAK_CLIENT_ID` | ID клиента в Keycloak | Да | `pimcore-admin` |
+| `KEYCLOAK_CLIENT_SECRET` | Секрет клиента | Да | `your-client-secret` |
+| `KEYCLOAK_SERVER_BASE_URL` | Базовый URL сервера Keycloak | Да | `https://keycloak.example.com/auth` |
+| `KEYCLOAK_SERVER_PUBLIC_BASE_URL` | Публичный URL для внешнего доступа | Нет | `https://keycloak.example.com/auth` |
+| `KEYCLOAK_SERVER_PRIVATE_BASE_URL` | Приватный URL для внутреннего доступа | Нет | `https://keycloak.internal.com/auth` |
+| `KEYCLOAK_REALM` | Realm в Keycloak | Да | `your-realm` |
+| `KEYCLOAK_DEFAULT_SCOPES` | Scopes для OAuth2 запросов | Нет | `openid,profile,email,roles` |
+| `KEYCLOAK_TARGET_ROUTE_NAME` | Маршрут для редиректа после входа | Нет | `pimcore_admin_index` |
+
+### Конфигурация бандла
+
+Вы можете настроить бандл через файл `config/packages/iperson1337_pimcore_keycloak.yaml`:
+
+```yaml
+iperson1337_pimcore_keycloak:
+    # Маршрут для редиректа после успешного входа
+    default_target_route_name: '%env(KEYCLOAK_TARGET_ROUTE_NAME)%'
+    
+    # Класс пользователя Pimcore
+    admin_user_class: 'Pimcore\Model\User'
+    
+    # Язык по умолчанию для новых пользователей
+    default_language: 'ru'
+    
+    # Автоматически создавать пользователей при первом входе
+    auto_create_users: true
+    
+    # Синхронизировать данные пользователя при каждом входе
+    sync_user_data: true
+    
+    # Настройки подключения к Keycloak
+    keycloak:
+        client_id: '%env(resolve:KEYCLOAK_CLIENT_ID)%'
+        client_secret: '%env(KEYCLOAK_CLIENT_SECRET)%'
+        server_url: '%env(KEYCLOAK_SERVER_BASE_URL)%'
+        server_public_url: '%env(KEYCLOAK_SERVER_PUBLIC_BASE_URL)%'
+        server_private_url: '%env(KEYCLOAK_SERVER_PRIVATE_BASE_URL)%'
+        realm: '%env(KEYCLOAK_REALM)%'
+        ssl_verification: false
+        default_scopes: '%env(KEYCLOAK_DEFAULT_SCOPES)%'
+    
+    # Маппинг полей пользователя
+    user_mapping:
+        username: 'preferred_username'
+        email: 'email'
+        firstname: 'given_name'
+        lastname: 'family_name'
+```
+
+### Настройка Scopes
+
+Параметр `default_scopes` определяет, какие данные пользователя будут запрашиваться у Keycloak. Вы можете указать scopes в двух форматах:
+
+**Строка (рекомендуется):**
+```bash
+KEYCLOAK_DEFAULT_SCOPES=openid,profile,email,roles
+```
+
+**Массив в YAML:**
+```yaml
+default_scopes:
+    - openid
+    - profile
+    - email
+    - roles
+    - custom_scope
+```
+
+**Доступные стандартные scopes:**
+- `openid` - обязательный для OpenID Connect
+- `profile` - основная информация профиля (имя, фамилия)
+- `email` - email адрес
+- `roles` - роли пользователя
+- `address` - адрес пользователя
+- `phone` - телефон
+
 ## Настройка Keycloak
 
 1. Создайте новый клиент в Keycloak
@@ -160,6 +243,7 @@ bin/console cache:clear
 4. Включите "Standard Flow" и "Direct Access Grants"
 5. Установите Valid Redirect URIs как `https://your-pimcore-domain.com/auth/keycloak/check`
 6. После сохранения перейдите на вкладку Credentials для получения Client Secret
+7. Настройте Client Scopes в соответствии с вашими `default_scopes`
 
 ## Маппинг пользователей
 
@@ -266,12 +350,60 @@ monolog:
 
 ## Устранение неполадок
 
+### Частые проблемы
+
+**Ошибка: "Unrecognized option 'default_scopes'"**
+- Убедитесь, что вы используете последнюю версию бандла
+- Очистите кеш: `bin/console cache:clear`
+- Проверьте, что файл `Configuration.php` содержит определение `default_scopes`
+
+**Ошибка: "Invalid scopes"**
+- Проверьте, что указанные scopes существуют в Keycloak
+- Убедитесь, что scopes правильно настроены в клиенте Keycloak
+- Проверьте формат переменной `KEYCLOAK_DEFAULT_SCOPES` (должна быть строка через запятую)
+
+**Проблемы с аутентификацией**
+- Проверьте правильность `KEYCLOAK_CLIENT_ID` и `KEYCLOAK_CLIENT_SECRET`
+- Убедитесь, что URL редиректа совпадает с настройками в Keycloak
+- Проверьте, что realm существует и доступен
+
+**Проблемы с созданием пользователей**
+- Убедитесь, что `auto_create_users: true` в конфигурации
+- Проверьте маппинг полей в `user_mapping`
+- Убедитесь, что у пользователя есть необходимые поля в Keycloak
+
+### Отладка
+
+1. **Проверьте конфигурацию:**
+   ```bash
+   bin/console debug:config iperson1337_pimcore_keycloak
+   ```
+
+2. **Проверьте переменные окружения:**
+   ```bash
+   bin/console debug:container --env-vars
+   ```
+
+3. **Проверьте логи:**
+   ```bash
+   tail -f var/log/keycloak.log
+   ```
+
+4. **Проверьте подключение к Keycloak:**
+   ```bash
+   curl -k https://your-keycloak-server/auth/realms/your-realm/.well-known/openid_configuration
+   ```
+
+### Дополнительные проверки
+
 При возникновении проблем проверьте:
 
 1. Правильность настроек клиента в Keycloak
 2. Корректность URL-адресов и разрешенных редиректов
 3. Настройки scope и mappers в Keycloak
 4. Логи в файле keycloak.log
+5. Настройки SSL-сертификатов (`ssl_verification`)
+6. Доступность сервера Keycloak из Pimcore
 
 Дополнительные руководства по устранению неполадок доступны в документации в папке `docs/`.
 

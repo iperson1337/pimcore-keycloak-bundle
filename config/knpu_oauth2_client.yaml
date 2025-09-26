@@ -13,9 +13,4 @@ knpu_oauth2_client:
                 auth_server_public_url: '%env(KEYCLOAK_SERVER_PUBLIC_BASE_URL)%'
                 auth_server_private_url: '%env(KEYCLOAK_SERVER_PRIVATE_BASE_URL)%'
                 realm: '%env(KEYCLOAK_REALM)%'
-                default_scopes:
-                  - openid
-                  - profile
-                  - email
-                  - roles
-                  - tabel_id
+                default_scopes: '%env(KEYCLOAK_DEFAULT_SCOPES)%'

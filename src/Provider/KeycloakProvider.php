@@ -32,7 +32,7 @@ class KeycloakProvider extends AbstractProvider
         $this->authServerPublicUrl = $options['auth_server_public_url'] ?? $options['auth_server_url'];
         $this->authServerPrivateUrl = $options['auth_server_private_url'] ?? $options['auth_server_url'];
         $this->realm = $options['realm'];
-        $this->defaultScopes = $options['default_scopes'];
+        $this->defaultScopes = $options['default_scopes'] ?? [];
 
         parent::__construct($options, $collaborators);
     }
