@@ -5,7 +5,7 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 и придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.6]
 
 ### Добавлено
 - Поддержка настройки `default_scopes` через переменную окружения `KEYCLOAK_DEFAULT_SCOPES`
