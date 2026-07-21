@@ -7,10 +7,6 @@ services:
             $autoCreateUsers: '%iperson1337_pimcore_keycloak.auto_create_users%'
             $syncUserData: '%iperson1337_pimcore_keycloak.sync_user_data%'
 
-    Psr\Log\LoggerInterface:
-        alias: monolog.logger.keycloak
-        public: true
-
     Iperson1337\PimcoreKeycloakBundle\Installer:
         public: true
         arguments:
@@ -36,6 +32,14 @@ services:
         arguments:
             $logger: '@monolog.logger.keycloak'
             $defaultLanguage: '%iperson1337_pimcore_keycloak.default_language%'
+
+    Iperson1337\PimcoreKeycloakBundle\Controller\KeycloakController:
+        arguments:
+            $logger: '@monolog.logger.keycloak'
+
+    Iperson1337\PimcoreKeycloakBundle\EventListener\ExceptionListener:
+        arguments:
+            $logger: '@monolog.logger.keycloak'
 
     # Запись событий в отдельный лог-канал
     monolog.logger.keycloak:
