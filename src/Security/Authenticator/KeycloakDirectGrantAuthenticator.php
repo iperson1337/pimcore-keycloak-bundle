@@ -18,6 +18,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -110,7 +111,10 @@ class KeycloakDirectGrantAuthenticator extends AbstractAuthenticator implements 
 
         $userBadge = new UserBadge($keycloakUser->getUserIdentifier(), static fn () => new User($pimcoreUser));
 
-        return new SelfValidatingPassport($userBadge);
+        // Бейдж только объявляет возможность: включит его CheckRememberMeConditionsListener,
+        // если фаервол настроил remember_me и форма прислала remember_me_parameter (_remember_me).
+        // Без секции remember_me в фаерволе бейдж ни на что не влияет.
+        return new SelfValidatingPassport($userBadge, [new RememberMeBadge()]);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

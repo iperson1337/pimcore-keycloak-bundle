@@ -191,6 +191,35 @@ security:
 ```
 
 `form_login` при этом не нужен: аутентификатор сам обрабатывает POST формы.
+
+### «Запомнить меня»
+
+Аутентификатор передаёт `RememberMeBadge`, поэтому достаточно добавить секцию `remember_me`
+в тот же фаервол и чекбокс `_remember_me` в форму входа:
+
+```yaml
+# config/packages/security.yaml
+        pimcore_admin:
+            # ...
+            remember_me:
+                secret: '%kernel.secret%'
+                name: PIMCORE_REMEMBERME
+                lifetime: 604800 # 7 дней
+                path: /admin
+                secure: auto
+                samesite: lax
+                remember_me_parameter: _remember_me
+```
+
+```twig
+<input type="checkbox" name="_remember_me" value="1">
+```
+
+Кука подписана `kernel.secret`; при следующем заходе Symfony поднимает пользователя через
+провайдер фаервола, не обращаясь к Keycloak. Подпись по умолчанию считается по свойству
+`password` пользователя Pimcore — у пользователей, заведённых из Keycloak, оно обычно пустое,
+и это нормально: секрет приложения всё равно участвует в подписи.
+
 Полноценный SSO с редиректом остаётся доступен по прямой ссылке
 `/admin/keycloak/connect` — её можно оставить на форме входа отдельной кнопкой.
 
