@@ -5,6 +5,14 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 и придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9]
+
+### Добавлено
+- Опция `single_logout` (по умолчанию `true`). Выключенная, она оставляет выход штатному
+  logout фаервола: `LogoutListener` больше не редиректит на end-session Keycloak. Нужна при
+  входе через `KeycloakDirectGrantAuthenticator` — браузерной сессии в Keycloak в этом
+  случае нет, и редирект только моргает страницей.
+
 ## [1.0.8]
 
 ### Добавлено

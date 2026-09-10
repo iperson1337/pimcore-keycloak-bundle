@@ -367,6 +367,18 @@ Iperson1337\PimcoreKeycloakBundle\Service\UserMapperService:
 1. Убедитесь, что ваш logout route использует контроллер `iperson1337_pimcore_keycloak_auth_logout`
 2. Или настройте ваш собственный logout handler, который будет включать вызов Keycloak endpoints
 
+Если вход настроен через `KeycloakDirectGrantAuthenticator`, браузерной сессии в Keycloak
+нет и редирект на end-session только моргает страницей. Отключите его:
+
+```yaml
+# config/packages/iperson1337_pimcore_keycloak.yaml
+iperson1337_pimcore_keycloak:
+    single_logout: false
+```
+
+Тогда выход обрабатывает штатный logout фаервола: сессия Pimcore очищается, пользователь
+уходит на `logout.target`.
+
 ## Логирование
 
 Бандл использует отдельный канал логирования `keycloak`. Вы можете настроить его в `monolog.yaml`:

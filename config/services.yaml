@@ -13,6 +13,8 @@ services:
             $bundle: "@=service('kernel').getBundle('PimcoreKeycloakBundle')"
 
     Iperson1337\PimcoreKeycloakBundle\EventListener\LogoutListener:
+        arguments:
+            $singleLogout: '%iperson1337_pimcore_keycloak.single_logout%'
         tags:
             - { name: kernel.event_subscriber }
 
