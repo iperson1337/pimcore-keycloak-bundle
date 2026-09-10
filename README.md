@@ -16,6 +16,7 @@
 - Поддержка Single Logout (выход одновременно из Pimcore и Keycloak)
 - Соответствие ролей Keycloak и Pimcore
 - Управление аккаунтом Keycloak из интерфейса Pimcore
+- Вход по штатной форме `/admin/login` без редиректа в Keycloak (Direct Grant)
 
 ## Требования
 
@@ -152,6 +153,46 @@ framework:
 ```bash
 bin/console cache:clear
 ```
+
+## Вход без редиректа в Keycloak (Direct Grant)
+
+По умолчанию неаутентифицированный заход на `/admin` уводит браузер на страницу
+входа Keycloak. Если пользователи должны видеть штатную форму Pimcore, а пароль
+при этом всё равно должен проверяться в Keycloak, подключите
+`KeycloakDirectGrantAuthenticator`: он ловит POST на `pimcore_admin_login_check`
+и обменивает логин с паролем на токен через Resource Owner Password Credentials
+grant (`grant_type=password`), без единого браузерного редиректа.
+
+Требования на стороне Keycloak: у клиента должен быть включён параметр
+**Direct Access Grants Enabled**. Запрашиваются те же scopes, что и в
+redirect-flow (`KEYCLOAK_DEFAULT_SCOPES`), поэтому `openid` в списке обязателен —
+без него `/userinfo` отвечает `403 insufficient_scope`.
+
+```yaml
+# config/packages/security.yaml
+security:
+    firewalls:
+        pimcore_admin:
+            pattern: ^/admin
+            provider: pimcore_admin
+            custom_authenticators:
+                - Pimcore\Bundle\AdminBundle\Security\Authenticator\AdminTokenAuthenticator
+                - Iperson1337\PimcoreKeycloakBundle\Security\Authenticator\KeycloakDirectGrantAuthenticator
+                - Iperson1337\PimcoreKeycloakBundle\Security\Authenticator\KeycloakAuthenticator
+            logout:
+                path: pimcore_admin_logout
+                target: pimcore_admin_login
+            # форма логина вместо страницы Keycloak
+            entry_point: Iperson1337\PimcoreKeycloakBundle\Security\Authenticator\KeycloakDirectGrantAuthenticator
+
+    access_control:
+        # без этого правила /admin/login попадает под общее ^/admin и зацикливает редирект
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+```
+
+`form_login` при этом не нужен: аутентификатор сам обрабатывает POST формы.
+Полноценный SSO с редиректом остаётся доступен по прямой ссылке
+`/admin/keycloak/connect` — её можно оставить на форме входа отдельной кнопкой.
 
 ## Конфигурация
 

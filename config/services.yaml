@@ -28,6 +28,14 @@ services:
             $logger: '@monolog.logger.keycloak'
             $translator: '@translator'
 
+    Iperson1337\PimcoreKeycloakBundle\Security\Authenticator\KeycloakDirectGrantAuthenticator:
+        arguments:
+            $clientRegistry: '@KnpU\OAuth2ClientBundle\Client\ClientRegistry'
+            $userProvider: '@Iperson1337\PimcoreKeycloakBundle\Security\User\KeycloakUserProvider'
+            $router: '@router'
+            $logger: '@monolog.logger.keycloak'
+            $translator: '@translator'
+
     Iperson1337\PimcoreKeycloakBundle\Service\UserMapperService:
         arguments:
             $logger: '@monolog.logger.keycloak'

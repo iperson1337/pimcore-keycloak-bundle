@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 и придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8]
+
+### Добавлено
+- `KeycloakDirectGrantAuthenticator` — вход по штатной форме `/admin/login` без
+  браузерного редиректа в Keycloak: логин и пароль формы проверяются напрямую в
+  Keycloak через Resource Owner Password Credentials grant (`grant_type=password`).
+  Требует включённого «Direct Access Grants Enabled» у клиента в Keycloak.
+- Аутентификатор реализует `AuthenticationEntryPointInterface`: если назначить его
+  точкой входа фаервола, неаутентифицированный заход на `/admin` показывает форму
+  логина, а не уходит на страницу Keycloak. Redirect-flow SSO остаётся доступен
+  на `/admin/keycloak/connect`.
+
 ## [1.0.6]
 
 ### Добавлено
